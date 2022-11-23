@@ -35,6 +35,8 @@ kubebuilder create api --group=job --version=v1alpha1 --kind=At --controller --r
 
 ## resources
 
+- [Writing a kubernetes controller in Go with kubebuilder](https://dev.to/ishankhare07/writing-a-simple-kubernetes-controller-in-go-with-kubebuilder-ib8)
+
 - [What is a Kubernetes Operator?](https://sdk.operatorframework.io/docs/building-operators/golang/tutorial/)
 
 - [Demo Memcached Operator using Operator SDK](https://www.youtube.com/watch?v=9QR3sRp-6Xk&ab_channel=AustinMacdonald)

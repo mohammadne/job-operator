@@ -45,15 +45,6 @@ type AtReconciler struct {
 //+kubebuilder:rbac:groups=job.example.com,resources=ats/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=job.example.com,resources=ats/finalizers,verbs=update
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the At object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.13.0/pkg/reconcile
 func (r *AtReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := r.Log.WithValues("at", req.NamespacedName)
 	logger.Info("=== Reconciling At")
@@ -191,18 +182,14 @@ func newPodForCR(cr *jobv1alpha1.At) *corev1.Pod {
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *AtReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
+	err := ctrl.NewControllerManagedBy(mgr).
 		For(&jobv1alpha1.At{}).
+		Owns(&corev1.Pod{}). //tells the controller manager that pods created by this controller also needs to be watched for changes.
 		Complete(r)
 
-	// err := ctrl.NewControllerManagedBy(mgr).
-	// 	For(&jobv1alpha1.At{}).
-	// 	Owns(&corev1.Pod{}).
-	// 	Complete(r)
+	if err != nil {
+		return err
+	}
 
-	// if err != nil {
-	// 	return err
-	// }
-
-	// return nil
+	return nil
 }
