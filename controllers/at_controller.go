@@ -22,11 +22,11 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/go-logr/logr"
 	jobv1alpha1 "github.com/mohammadne/job-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -38,7 +38,7 @@ type AtReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 
-	Log logr.Logger
+	Log *zap.Logger
 }
 
 //+kubebuilder:rbac:groups=job.example.com,resources=ats,verbs=get;list;watch;create;update;patch;delete
@@ -46,8 +46,7 @@ type AtReconciler struct {
 //+kubebuilder:rbac:groups=job.example.com,resources=ats/finalizers,verbs=update
 
 func (r *AtReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	logger := r.Log.WithValues("at", req.NamespacedName)
-	logger.Info("=== Reconciling At")
+	r.Log.Info("=== Reconciling At")
 
 	instance := &jobv1alpha1.At{}
 	err := r.Get(context.TODO(), req.NamespacedName, instance)
@@ -70,27 +69,27 @@ func (r *AtReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 	// state transition PENDING -> RUNNING -> DONE
 	switch instance.Status.Phase {
 	case jobv1alpha1.PhasePending:
-		logger.Info("Phase: PENDING")
+		r.Log.Info("Phase: PENDING")
 
 		diff, err := timeUntilSchedule(instance.Spec.Schedule)
 		if err != nil {
-			logger.Error(err, "Schedule parsing failure")
+			r.Log.Error("Schedule parsing failure", zap.Error(err))
 
 			return ctrl.Result{}, err
 		}
 
-		logger.Info("Schedule parsing done", "Result", fmt.Sprintf("%v", diff))
+		r.Log.Info("Schedule parsing done", zap.String("diff", fmt.Sprintf("%v", diff)))
 
 		if diff > 0 {
 			// not yet time to execute, wait until scheduled time
 			return ctrl.Result{RequeueAfter: diff * time.Second}, nil
 		}
 
-		logger.Info("It's time!", "Ready to execute", instance.Spec.Command)
+		r.Log.Info("ready to execute command", zap.String("command", instance.Spec.Command))
 		// change state
 		instance.Status.Phase = jobv1alpha1.PhaseRunning
 	case jobv1alpha1.PhaseRunning:
-		logger.Info("Phase: RUNNING")
+		r.Log.Info("Phase: RUNNING")
 
 		pod := newPodForCR(instance)
 		err := ctrl.SetControllerReference(instance, pod, r.Scheme)
@@ -110,17 +109,16 @@ func (r *AtReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 			}
 
 			// Successfully created a Pod
-			logger.Info("Pod Created successfully", "name", pod.Name)
+			r.Log.Info("Pod Created successfully", zap.String("name", pod.Name))
 			return ctrl.Result{}, nil
 		} else if err != nil {
 			// requeue with err
-			logger.Error(err, "cannot create pod")
+			r.Log.Error("cannot create pod", zap.Error(err))
 			return ctrl.Result{}, err
 		} else if query.Status.Phase == corev1.PodFailed ||
 			query.Status.Phase == corev1.PodSucceeded {
 			// pod already finished or errored out`
-			logger.Info("Container terminated", "reason", query.Status.Reason,
-				"message", query.Status.Message)
+			r.Log.Info("Container terminated", zap.String("reason", query.Status.Reason), zap.String("message", query.Status.Message))
 			instance.Status.Phase = jobv1alpha1.PhaseDone
 		} else {
 			// don't requeue, it will happen automatically when
@@ -128,11 +126,11 @@ func (r *AtReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 			return ctrl.Result{}, nil
 		}
 	case jobv1alpha1.PhaseDone:
-		logger.Info("Phase: DONE")
+		r.Log.Info("Phase: DONE")
 		// reconcile without requeuing
 		return ctrl.Result{}, nil
 	default:
-		logger.Info("NOP")
+		r.Log.Info("NOP")
 		return ctrl.Result{}, nil
 	}
 
@@ -184,10 +182,11 @@ func newPodForCR(cr *jobv1alpha1.At) *corev1.Pod {
 func (r *AtReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	err := ctrl.NewControllerManagedBy(mgr).
 		For(&jobv1alpha1.At{}).
-		Owns(&corev1.Pod{}). //tells the controller manager that pods created by this controller also needs to be watched for changes.
+		Owns(&corev1.Pod{}). // tells the controller manager that pods created by this controller also needs to be watched for changes.
 		Complete(r)
 
 	if err != nil {
+		r.Log.Error("error while returning a new controller builder", zap.Error(err))
 		return err
 	}
 
