@@ -1,0 +1,27 @@
+# permissions for end users to view ats.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: at-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: job-operator
+    app.kubernetes.io/part-of: job-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: at-viewer-role
+rules:
+- apiGroups:
+  - job.example.com
+  resources:
+  - ats
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - job.example.com
+  resources:
+  - ats/status
+  verbs:
+  - get
