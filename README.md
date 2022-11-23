@@ -20,7 +20,7 @@ kubebuilder init --project-name job-operator --domain=example.com --repo=github.
 tree -L 1
 
 # scaffold CRD's API
-kubebuilder create api --group=job --version=v1alpha1 --kind=AT --controller --resource
+kubebuilder create api --group=job --version=v1alpha1 --kind=At --controller --resource
 ```
 
 ## usage

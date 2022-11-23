@@ -26,13 +26,13 @@ import (
 type Phase string
 
 const (
-	PendingPhase Phase = "PENDING"
-	RunningPhase Phase = "RUNNING"
-	DonePhase    Phase = "DONE"
+	PhasePending Phase = "PENDING"
+	PhaseRunning Phase = "RUNNING"
+	PhaseDone    Phase = "DONE"
 )
 
-// ATSpec defines the desired state of AT
-type ATSpec struct {
+// AtSpec defines the desired state of At
+type AtSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
@@ -40,8 +40,8 @@ type ATSpec struct {
 	Command  string `json:"command,omitempty"`
 }
 
-// ATStatus defines the observed state of AT
-type ATStatus struct {
+// AtStatus defines the observed state of At
+type AtStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
@@ -51,24 +51,24 @@ type ATStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// AT is the Schema for the ats API
-type AT struct {
+// At is the Schema for the ats API
+type At struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ATSpec   `json:"spec,omitempty"`
-	Status ATStatus `json:"status,omitempty"`
+	Spec   AtSpec   `json:"spec,omitempty"`
+	Status AtStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// ATList contains a list of AT
-type ATList struct {
+// AtList contains a list of At
+type AtList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []AT `json:"items"`
+	Items           []At `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&AT{}, &ATList{})
+	SchemeBuilder.Register(&At{}, &AtList{})
 }

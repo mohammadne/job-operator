@@ -9,8 +9,8 @@ metadata:
 spec:
   group: job.example.com
   names:
-    kind: AT
-    listKind: ATList
+    kind: At
+    listKind: AtList
     plural: ats
     singular: at
   scope: Namespaced
@@ -18,7 +18,7 @@ spec:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: AT is the Schema for the ats API
+        description: At is the Schema for the ats API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -33,7 +33,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: ATSpec defines the desired state of AT
+            description: AtSpec defines the desired state of At
             properties:
               command:
                 type: string
@@ -41,7 +41,7 @@ spec:
                 type: string
             type: object
           status:
-            description: ATStatus defines the observed state of AT
+            description: AtStatus defines the observed state of At
             properties:
               phase:
                 type: string

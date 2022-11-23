@@ -10,7 +10,7 @@ resources:
   controller: true
   domain: example.com
   group: job
-  kind: AT
+  kind: At
   path: github.com/mohammadne/job-operator/api/v1alpha1
   version: v1alpha1
 version: "3"

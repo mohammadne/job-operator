@@ -1,5 +1,5 @@
 apiVersion: job.example.com/v1alpha1
-kind: AT
+kind: At
 metadata:
   labels:
     app.kubernetes.io/name: at

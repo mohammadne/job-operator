@@ -89,11 +89,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.ATReconciler{
+	if err = (&controllers.AtReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "AT")
+		setupLog.Error(err, "unable to create controller", "controller", "At")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
