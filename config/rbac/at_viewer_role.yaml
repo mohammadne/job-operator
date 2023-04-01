@@ -6,13 +6,13 @@ metadata:
     app.kubernetes.io/name: clusterrole
     app.kubernetes.io/instance: at-viewer-role
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: job-operator
-    app.kubernetes.io/part-of: job-operator
+    app.kubernetes.io/created-by: example
+    app.kubernetes.io/part-of: example
     app.kubernetes.io/managed-by: kustomize
   name: at-viewer-role
 rules:
 - apiGroups:
-  - job.example.com
+  - job.mohammadne.me
   resources:
   - ats
   verbs:
@@ -20,7 +20,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - job.example.com
+  - job.mohammadne.me
   resources:
   - ats/status
   verbs:

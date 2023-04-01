@@ -6,7 +6,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - job.example.com
+  - job.mohammadne.me
   resources:
   - ats
   verbs:
@@ -18,13 +18,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - job.example.com
+  - job.mohammadne.me
   resources:
   - ats/finalizers
   verbs:
   - update
 - apiGroups:
-  - job.example.com
+  - job.mohammadne.me
   resources:
   - ats/status
   verbs:

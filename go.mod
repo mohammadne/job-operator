@@ -1,4 +1,4 @@
-module github.com/mohammadne/job-operator
+module github.com/mohammadne/example-operator
 
 go 1.19
 

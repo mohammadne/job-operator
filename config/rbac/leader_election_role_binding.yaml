@@ -5,8 +5,8 @@ metadata:
     app.kubernetes.io/name: rolebinding
     app.kubernetes.io/instance: leader-election-rolebinding
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: job-operator
-    app.kubernetes.io/part-of: job-operator
+    app.kubernetes.io/created-by: example
+    app.kubernetes.io/part-of: example
     app.kubernetes.io/managed-by: kustomize
   name: leader-election-rolebinding
 roleRef:

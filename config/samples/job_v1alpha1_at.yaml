@@ -1,12 +1,12 @@
-apiVersion: job.example.com/v1alpha1
+apiVersion: job.mohammadne.me/v1alpha1
 kind: At
 metadata:
   labels:
     app.kubernetes.io/name: at
     app.kubernetes.io/instance: at-sample
-    app.kubernetes.io/part-of: job-operator
-    app.kuberentes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: job-operator
+    app.kubernetes.io/part-of: example
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: example
   name: at-sample
 spec:
   # TODO(user): Add fields here

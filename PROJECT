@@ -1,16 +1,20 @@
-domain: example.com
+domain: mohammadne.me
 layout:
-- go.kubebuilder.io/v3
-projectName: job-operator
-repo: github.com/mohammadne/job-operator
+- go.kubebuilder.io/v4-alpha
+multigroup: true
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: example
+repo: github.com/mohammadne/example-operator
 resources:
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: example.com
+  domain: mohammadne.me
   group: job
   kind: At
-  path: github.com/mohammadne/job-operator/api/v1alpha1
+  path: github.com/mohammadne/example-operator/api/v1alpha1
   version: v1alpha1
 version: "3"

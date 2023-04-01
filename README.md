@@ -1,44 +1,94 @@
-# job-operator
+# example
+// TODO(user): Add simple overview of use/purpose
 
-> the operator will manage the combination of all components as one unit
->
-> here we aimed to create an an operator which enables to run jobs on the cluster (with custom logging) and log pod lifecycle changes
+## Description
+// TODO(user): An in-depth paragraph about your project and overview of use
 
-## installation
+## Getting Started
+You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
+**Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
+
+### Running on the cluster
+1. Install Instances of Custom Resources:
 
 ```sh
-# setup local kind cluster
-kubectl get nodes
-kubectl auth can-i create deployments
-kubectl auth can-i list secrets
-
-# install kubebuilder
-kubebuilder version
-
-# initialize project (golang)
-kubebuilder init --project-name job-operator --domain=example.com --repo=github.com/mohammadne/job-operator
-tree -L 1
-
-# scaffold CRD's API
-kubebuilder create api --group=job --version=v1alpha1 --kind=At --controller --resource
+kubectl apply -f config/samples/
 ```
 
-## usage
+2. Build and push your image to the location specified by `IMG`:
+	
+```sh
+make docker-build docker-push IMG=<some-registry>/example:tag
+```
+	
+3. Deploy the controller to the cluster with the image specified by `IMG`:
 
-- install prerequisites
+```sh
+make deploy IMG=<some-registry>/example:tag
+```
 
-- clone the repository
+### Uninstall CRDs
+To delete the CRDs from the cluster:
 
-- make install
+```sh
+make uninstall
+```
 
-- make deploy
+### Undeploy controller
+UnDeploy the controller to the cluster:
 
-## resources
+```sh
+make undeploy
+```
 
-- [Writing a kubernetes controller in Go with kubebuilder](https://dev.to/ishankhare07/writing-a-simple-kubernetes-controller-in-go-with-kubebuilder-ib8)
+## Contributing
+// TODO(user): Add detailed information on how you would like others to contribute to this project
 
-- [What is a Kubernetes Operator?](https://sdk.operatorframework.io/docs/building-operators/golang/tutorial/)
+### How it works
+This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)
 
-- [Demo Memcached Operator using Operator SDK](https://www.youtube.com/watch?v=9QR3sRp-6Xk&ab_channel=AustinMacdonald)
+It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/) 
+which provides a reconcile function responsible for synchronizing resources untile the desired state is reached on the cluster 
 
-- [Build and deploy a basic operator](https://developer.ibm.com/learningpaths/kubernetes-operators/develop-deploy-simple-operator/create-operator/) and [Explanation of Memcached operator code](https://developer.ibm.com/learningpaths/kubernetes-operators/develop-deploy-simple-operator/deep-dive-memcached-operator-code/)
+### Test It Out
+1. Install the CRDs into the cluster:
+
+```sh
+make install
+```
+
+2. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
+
+```sh
+make run
+```
+
+**NOTE:** You can also run this in one step by running: `make install run`
+
+### Modifying the API definitions
+If you are editing the API definitions, generate the manifests such as CRs or CRDs using:
+
+```sh
+make manifests
+```
+
+**NOTE:** Run `make --help` for more information on all potential `make` targets
+
+More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
+
+## License
+
+Copyright 2023.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+

@@ -1,5 +1,5 @@
 /*
-Copyright 2022.
+Copyright 2023.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,29 +23,19 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-type Phase string
-
-const (
-	PhasePending Phase = "PENDING"
-	PhaseRunning Phase = "RUNNING"
-	PhaseDone    Phase = "DONE"
-)
-
 // AtSpec defines the desired state of At
 type AtSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	Schedule string `json:"schedule,omitempty"`
-	Command  string `json:"command,omitempty"`
+	// Foo is an example field of At. Edit at_types.go to remove/update
+	Foo string `json:"foo,omitempty"`
 }
 
 // AtStatus defines the observed state of At
 type AtStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-
-	Phase Phase `json:"phase,omitempty"`
 }
 
 //+kubebuilder:object:root=true

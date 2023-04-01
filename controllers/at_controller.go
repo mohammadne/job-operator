@@ -1,5 +1,5 @@
 /*
-Copyright 2022.
+Copyright 2023.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,177 +18,45 @@ package controllers
 
 import (
 	"context"
-	"fmt"
-	"strings"
-	"time"
 
-	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	jobv1alpha1 "github.com/mohammadne/job-operator/api/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	jobv1alpha1 "github.com/mohammadne/example-operator/api/v1alpha1"
 )
 
 // AtReconciler reconciles a At object
 type AtReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
-
-	Log *zap.Logger
 }
 
-//+kubebuilder:rbac:groups=job.example.com,resources=ats,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=job.example.com,resources=ats/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=job.example.com,resources=ats/finalizers,verbs=update
+//+kubebuilder:rbac:groups=job.mohammadne.me,resources=ats,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=job.mohammadne.me,resources=ats/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=job.mohammadne.me,resources=ats/finalizers,verbs=update
 
+// Reconcile is part of the main kubernetes reconciliation loop which aims to
+// move the current state of the cluster closer to the desired state.
+// TODO(user): Modify the Reconcile function to compare the state specified by
+// the At object against the actual cluster state, and then
+// perform operations to make the cluster state reflect the state specified by
+// the user.
+//
+// For more details, check Reconcile and its Result here:
+// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.13.0/pkg/reconcile
 func (r *AtReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	r.Log.Info("=== Reconciling At")
+	_ = log.FromContext(ctx)
 
-	instance := &jobv1alpha1.At{}
-	err := r.Get(context.TODO(), req.NamespacedName, instance)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// object not found, could have been deleted after
-			// reconcile request, hence don't requeue
-			return ctrl.Result{}, nil
-		}
-
-		// error reading the object, requeue the request
-		return ctrl.Result{}, err
-	}
-
-	// if no phase set, default to Pending
-	if instance.Status.Phase == "" {
-		instance.Status.Phase = jobv1alpha1.PhasePending
-	}
-
-	// state transition PENDING -> RUNNING -> DONE
-	switch instance.Status.Phase {
-	case jobv1alpha1.PhasePending:
-		r.Log.Info("Phase: PENDING")
-
-		diff, err := timeUntilSchedule(instance.Spec.Schedule)
-		if err != nil {
-			r.Log.Error("Schedule parsing failure", zap.Error(err))
-
-			return ctrl.Result{}, err
-		}
-
-		r.Log.Info("Schedule parsing done", zap.String("diff", fmt.Sprintf("%v", diff)))
-
-		if diff > 0 {
-			// not yet time to execute, wait until scheduled time
-			return ctrl.Result{RequeueAfter: diff * time.Second}, nil
-		}
-
-		r.Log.Info("ready to execute command", zap.String("command", instance.Spec.Command))
-		// change state
-		instance.Status.Phase = jobv1alpha1.PhaseRunning
-	case jobv1alpha1.PhaseRunning:
-		r.Log.Info("Phase: RUNNING")
-
-		pod := newPodForCR(instance)
-		err := ctrl.SetControllerReference(instance, pod, r.Scheme)
-		if err != nil {
-			// requeue with error
-			return ctrl.Result{}, err
-		}
-
-		query := &corev1.Pod{}
-		// try to see if the pod already exists
-		err = r.Get(context.TODO(), req.NamespacedName, query)
-		if err != nil && errors.IsNotFound(err) {
-			// does not exist, create a pod
-			err = r.Create(context.TODO(), pod)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-
-			// Successfully created a Pod
-			r.Log.Info("Pod Created successfully", zap.String("name", pod.Name))
-			return ctrl.Result{}, nil
-		} else if err != nil {
-			// requeue with err
-			r.Log.Error("cannot create pod", zap.Error(err))
-			return ctrl.Result{}, err
-		} else if query.Status.Phase == corev1.PodFailed ||
-			query.Status.Phase == corev1.PodSucceeded {
-			// pod already finished or errored out`
-			r.Log.Info("Container terminated", zap.String("reason", query.Status.Reason), zap.String("message", query.Status.Message))
-			instance.Status.Phase = jobv1alpha1.PhaseDone
-		} else {
-			// don't requeue, it will happen automatically when
-			// pod status changes
-			return ctrl.Result{}, nil
-		}
-	case jobv1alpha1.PhaseDone:
-		r.Log.Info("Phase: DONE")
-		// reconcile without requeuing
-		return ctrl.Result{}, nil
-	default:
-		r.Log.Info("NOP")
-		return ctrl.Result{}, nil
-	}
-
-	// update status
-	err = r.Status().Update(context.TODO(), instance)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
+	// TODO(user): your logic here
 
 	return ctrl.Result{}, nil
 }
 
-func timeUntilSchedule(schedule string) (time.Duration, error) {
-	now := time.Now().UTC()
-	layout := "2006-01-02T15:04:05Z"
-	scheduledTime, err := time.Parse(layout, schedule)
-	if err != nil {
-		return time.Duration(0), err
-	}
-
-	return scheduledTime.Sub(now), nil
-}
-
-func newPodForCR(cr *jobv1alpha1.At) *corev1.Pod {
-	labels := map[string]string{
-		"app": cr.Name,
-	}
-
-	return &corev1.Pod{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.Name,
-			Namespace: cr.Namespace,
-			Labels:    labels,
-		},
-		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{
-				{
-					Name:    "busybox",
-					Image:   "busybox",
-					Command: strings.Split(cr.Spec.Command, " "),
-				},
-			},
-			RestartPolicy: corev1.RestartPolicyOnFailure,
-		},
-	}
-}
-
 // SetupWithManager sets up the controller with the Manager.
 func (r *AtReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	err := ctrl.NewControllerManagedBy(mgr).
+	return ctrl.NewControllerManagedBy(mgr).
 		For(&jobv1alpha1.At{}).
-		Owns(&corev1.Pod{}). // tells the controller manager that pods created by this controller also needs to be watched for changes.
 		Complete(r)
-
-	if err != nil {
-		r.Log.Error("error while returning a new controller builder", zap.Error(err))
-		return err
-	}
-
-	return nil
 }
